@@ -22,6 +22,7 @@ login = (ddp, options..., cb) ->
   options.plaintext ?= false
   options.account ?= null
   options.pass ?= null
+  options.methodOptions ?= {}
 
   switch options.method
     when 'username'
@@ -65,7 +66,8 @@ isEmail = (addr) ->
 
 attemptLogin = (ddp, user, pass, options, cb) ->
   digest = plaintextToDigest pass
-  ddp.call 'login', [{user: user, password: {digest: digest, algorithm: 'sha-256' }}], (err, res) ->
+  loginArguments = extend {user: user, password: {digest: digest, algorithm: 'sha-256' }}, options.methodOptions
+  ddp.call 'login', [loginArguments], (err, res) ->
     unless err and err.error is 400
       if err
         console.error 'Login failed:', err.message
@@ -85,7 +87,8 @@ attemptLogin = (ddp, user, pass, options, cb) ->
 
     else if options.plaintext
       # Fallback to plaintext login
-      ddp.call 'login', [{user: user, password: pass}], (err, res) ->
+      loginArguments = extend {user: user, password: pass}, options.methodOptions
+      ddp.call 'login', [loginArguments], (err, res) ->
         console.error 'Login failed: ', err.message if err
         return cb err, res
     else

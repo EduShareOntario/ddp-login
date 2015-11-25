@@ -1,1 +1,5 @@
+/lib
+/node_modules
+/.idea
+/ddp-login.iml
 node_modules
